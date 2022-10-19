@@ -54,6 +54,42 @@ export async function SignUp (req, res) {
         
     } catch (error) {
         res.sendStatus(500);
-        console.log(error.message);
+    }
+}
+
+export async function SignIn (req, res) {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+        return res.status(422).send('Preencha os campos corretamente.');
+    }
+
+    const chaveSecreta = process.env.TOKEN_SECRET;
+
+    try {
+        const findUser = await connection.query(`SELECT * FROM users WHERE email = $1;`, [email]);
+
+        const getEmailValidation = findUser.rows.map(item => item.email);
+        const getUserPassword = findUser.rows.map(item => item.password);
+        const getUserId = findUser.rows.map(item => item.id);
+
+        const dados = {userId: getUserId[0]};
+        const token = jwt.sign(dados, chaveSecreta, { expiresIn: 60*60*24*30 });
+       
+        if (!getEmailValidation[0]) {
+            return res.status(401).send('Senha ou e-mail incorretos.');
+        }
+        if (!bcrypt.compareSync(password, getUserPassword[0])) {
+            return res.status(401).send('Senha ou e-mail incorretos.');
+        }
+
+        await connection.query(`
+            INSERT INTO sessions ("userId", token) VALUES ($1, $2);
+        `, [getUserId[0], token]);
+
+        res.status(200).send({token});
+
+    } catch (error) {
+        res.sendStatus(500);
     }
 }
