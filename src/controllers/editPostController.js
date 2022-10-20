@@ -1,9 +1,15 @@
-async function editPost(req, res) {
-  const { userId, newPost, postId } = req.body;
+import { serverErrorResponse } from "../controllers/controllerHelper.js";
+import { insertNewEditPost } from "../repositories/editPostRepository.js";
 
-  
+async function putPost(req, res) {
+  const { newPost, postId } = req.body;
 
-  res.sendStatus(201);
+  try {
+    await insertNewEditPost({ newPost, postId });
+    return res.sendStatus(201);
+  } catch (error) {
+    serverErrorResponse(res, error);
+  }
 }
 
-export { editPost };
+export { putPost };
