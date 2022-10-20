@@ -6,7 +6,8 @@ import joi from "joi";
 dotenv.config();
 
 async function publishPost (req, res) {
-//COMO USUÁRIO LOGADO 
+//COMO USUÁRIO LOGADO - MIDDLEWARE
+    const userId = res.locals.userId;
 
 //QUERO PUBLICAR UM POST
     const { description, link } = req.body;
@@ -25,7 +26,10 @@ async function publishPost (req, res) {
     //VERIFICAÇÃO DAS HASHTAGS
 
     try {
-        res.status(200).send('deu bom');
+        await connection.query('INSERT INTO posts ("userId", description, url) VALUES ($1, $2, $3)', [userId, description, link]);
+        const published = await connection.query('SELECT id AS "postId", description, url FROM posts WHERE description = $1 AND url = $2', [description, link]);
+
+        res.status(200).send(published.rows);
     } catch (error) {
         res.status(500).send(error.message);
     }
