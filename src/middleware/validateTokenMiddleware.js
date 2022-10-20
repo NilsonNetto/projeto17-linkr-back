@@ -3,9 +3,8 @@ import { validateTokenRepository } from "../repositories/tokenRepository.js";
 
 async function validateToken(req, res, next) {
   const { userId } = req.body;
-
-  let token = req.headers.authorization;
-  token = token.replace("Bearer ", "");
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
 
   try {
     const tokenRegistered = await validateTokenRepository(token, userId);
