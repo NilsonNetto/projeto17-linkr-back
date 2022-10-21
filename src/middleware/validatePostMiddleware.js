@@ -13,6 +13,7 @@ async function validadePost(req, res, next) {
   } catch (error) {
     serverErrorResponse(res, error);
   }
+  res.locals.postId = postId;
   next();
 }
 
