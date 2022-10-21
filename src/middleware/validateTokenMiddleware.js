@@ -1,20 +1,21 @@
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+
 import { serverErrorResponse } from "../controllers/controllerHelper.js";
 import { validateTokenRepository } from "../repositories/tokenRepository.js";
 
 async function validateToken(req, res, next) {
-  const { userId } = req.body;
   const { authorization } = req.headers;
   const token = authorization?.replace("Bearer ", "");
 
+  const secretKey = process.env.TOKEN_SECRET;
   try {
-    const tokenRegistered = await validateTokenRepository(token, userId);
-    if (tokenRegistered.rowCount === 0) {
-      return res.status(400).send("Session invalid");
-    }
+    const verifyToken = jwt.verify(token, secretKey);
+    res.locals.userId = verifyToken.userId;
   } catch (error) {
     serverErrorResponse(res, error);
   }
-
   next();
 }
 

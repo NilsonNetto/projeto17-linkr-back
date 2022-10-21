@@ -2,12 +2,13 @@ import { validatePostRepository } from "../repositories/postRepository.js";
 import { serverErrorResponse } from "../controllers/controllerHelper.js";
 
 async function validadePost(req, res, next) {
-  const { postId, userId } = req.body;
+  const { postId } = req.body;
+  const { userId } = res.locals
 
   try {
-    const postRegistered = await validatePostRepository(postId, userId);
+    const postRegistered = await validatePostRepository({postId, userId});
     if (postRegistered.rowCount === 0) {
-      return res.status(400).send("Not authorized");
+      return res.status(401).send("Not authorized");
     }
   } catch (error) {
     serverErrorResponse(res, error);
