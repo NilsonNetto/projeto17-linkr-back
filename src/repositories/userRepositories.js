@@ -23,4 +23,14 @@ const searchPageUser = async (id) => {
   return pageUser;
 };
 
-export { searchPageUser };
+const searchUser = async (name) => {
+  const user = (
+    await connection.query(
+      `SELECT users.id, users.username, users."profilePicture"
+    FROM users WHERE users.username ILIKE '${name}%'`
+    )
+  ).rows;
+
+  return user;
+};
+export { searchPageUser, searchUser };
