@@ -1,5 +1,5 @@
 import express from "express";
-import * as hashtagsControllers from "../controllers/hashtags.controllers.js";
+import * as hashtagsControllers from "../controllers/hashtagsControllers.js";
 
 const router = express.Router();
 

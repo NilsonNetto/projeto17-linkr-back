@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import postsRouter from "./routes/postsRouter.js";
-import hashtagsRouters from "./routers/hashtags.router.js";
+import hashtagsRouters from "./routes/hashtagsRouter.js";
 import editPostRouter from "./routes/editPostRouter.js";
 
 dotenv.config();

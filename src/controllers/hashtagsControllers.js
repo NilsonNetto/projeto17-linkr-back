@@ -1,4 +1,4 @@
-import { listTrendingHashtags } from "../repositories/hashtags.repository.js";
+import { listTrendingHashtags } from "../repositories/hashtagsRepository.js";
 
 const getHashtags = async (req, res) => {
 
