@@ -1,8 +1,8 @@
-import connection from "../db/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import joi from "joi";
+import * as authRepository from "../repositories/authRepository.js";
 dotenv.config();
 
 export async function SignUp (req, res) {
@@ -30,25 +30,25 @@ export async function SignUp (req, res) {
     const cryptoPassword = bcrypt.hashSync(password, 10);
 
     try {
-        const alreadySigned = await connection.query(`
-            SELECT * FROM users WHERE email = $1;
-        `, [email]);
+        const alreadySigned = await authRepository.getUserByEmail({email});
+        
         const getEmail = alreadySigned.rows.map(item => item.email);
         if (getEmail[0]) {
             return res.status(401).send('O usuário já foi cadastrado.');
         }
 
-        const alreadyUsedUsername = await connection.query(`
-            SELECT * FROM users WHERE username = $1;
-        `, [username]);
+        const alreadyUsedUsername = await authRepository.getUserByUsername({username});
         const getUsername = alreadyUsedUsername.rows.map(item => item.username);
         if (getUsername[0]) {
             return res.status(401).send('Escolha outro username esse já está sendo usado no momento.')
         }
 
-        await connection.query(`
-            INSERT INTO users (email, password, username, "profilePicture") VALUES ($1, $2, $3, $4);
-        `, [email, cryptoPassword, username, profilePicture]);
+        await authRepository.insertUser({
+            email,
+            cryptoPassword, 
+            username, 
+            profilePicture
+        });
 
         res.status(201).send('Usuário cadastrado.');
         
@@ -67,25 +67,24 @@ export async function SignIn (req, res) {
     const chaveSecreta = process.env.TOKEN_SECRET;
 
     try {
-        const findUser = await connection.query(`SELECT * FROM users WHERE email = $1;`, [email]);
+        const findUser = await authRepository.getUserByEmail({email});
+        
+        const getUserPassword = findUser.rows[0].password;
 
-        const getEmailValidation = findUser.rows.map(item => item.email);
-        const getUserPassword = findUser.rows.map(item => item.password);
-        const getUserId = findUser.rows.map(item => item.id);
-
-        const dados = {userId: getUserId[0]};
+        const dados = {userId: findUser.rows[0].id};
         const token = jwt.sign(dados, chaveSecreta, { expiresIn: 60*60*24*30 });
        
-        if (!getEmailValidation[0]) {
+        if (!findUser.rows[0].email) {
             return res.status(401).send('Senha ou e-mail incorretos.');
         }
-        if (!bcrypt.compareSync(password, getUserPassword[0])) {
+        if (!bcrypt.compareSync(password, getUserPassword)) {
             return res.status(401).send('Senha ou e-mail incorretos.');
         }
 
-        await connection.query(`
-            INSERT INTO sessions ("userId", token) VALUES ($1, $2);
-        `, [getUserId[0], token]);
+        await authRepository.insertSessions({
+            userId: findUser.rows[0].id,
+            token
+          });
 
         res.status(200).send({token});
 
