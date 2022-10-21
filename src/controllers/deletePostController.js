@@ -1,11 +1,14 @@
 import { serverErrorResponse } from "../controllers/controllerHelper.js";
-import { deletePostById } from "../repositories/deletePostRepository.js";
+import * as deletePostRepository from "../repositories/deletePostRepository.js";
 
 async function deletePost(req, res) {
   const { postId } = res.locals;
 
   try {
-    const deleteSuccessful = await deletePostById(postId);
+    await deletePostRepository.deleteLikesByPostId(postId);
+    await deletePostRepository.deletePostHashtagsByPostId(postId);
+
+    const deleteSuccessful = await deletePostRepository.deletePostById(postId);
 
     if (deleteSuccessful.rowCount > 0) {
       return res.status(200).send("Post deleted successfully");
