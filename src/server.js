@@ -1,11 +1,11 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "../src/routes/userRoutes.js";
+import authRoutes from "./routes/authRouter.js";
+import userRoutes from "../src/routes/userRouter.js";
 import postsRouter from "./routes/postsRouter.js";
 import hashtagsRouters from "./routes/hashtagsRouter.js";
-import likesRoutes from "./routes/likesRoutes.js";
+import likesRoutes from "./routes/likesRouter.js";
 import editPostRouter from "./routes/editPostRouter.js";
 dotenv.config();
 
