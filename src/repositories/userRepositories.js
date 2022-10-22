@@ -1,6 +1,9 @@
 import connection from "../db/db.js";
 
 const searchPageUser = async (id) => {
+  const user = (
+    await connection.query(`SELECT users.username FROM users WHERE id=$1`, [id])
+  ).rows[0];
   const pageUser = (
     await connection.query(
       `SELECT
@@ -19,8 +22,8 @@ const searchPageUser = async (id) => {
       [id]
     )
   ).rows;
-
-  return pageUser;
+  const postUser = { username: user.username, posts: pageUser };
+  return postUser;
 };
 
 const searchUser = async (name) => {

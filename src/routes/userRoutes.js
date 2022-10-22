@@ -1,5 +1,6 @@
 import { findUser, showPageUser } from "../controllers/usersControllers.js";
 import express from "express";
+import { userLogged } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
