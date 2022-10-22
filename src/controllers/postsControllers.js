@@ -47,20 +47,23 @@ async function publishPost(req, res) {
 async function getPosts(req, res) {
   //COMO USUÁRIO LOGADO - MIDDLEWARE
   const userId = res.locals.userId;
+  
+    //QUERO VER OS POSTS DA MINHA TIMELINE
+    try {
+        const posts = (await listPosts()).reverse();
+        
+        if (posts.length > 20) {
+            let postsLimited = [];
+            for (let i = 0; i < 20; i++) {
+                postsLimited.push(posts[i]);
+            }
+            return res.status(200).send(postsLimited);
+        }
+        
+        res.status(200).send(posts);
+    } catch (error) {
+        res.status(500).send(error.message);
 
-  //QUERO VER OS POSTS DA MINHA TIMELINE
-  try {
-    const posts = (
-      await connection.query("SELECT * FROM posts")
-    ).rows.reverse();
-
-    console.log(posts);
-    if (posts.length > 20) {
-      let postsLimited = [];
-      for (let i = 0; i < 20; i++) {
-        postsLimited.push(posts[i]);
-      }
-      res.status(200).send(postsLimited);
     }
 
     res.status(200).send(posts);
