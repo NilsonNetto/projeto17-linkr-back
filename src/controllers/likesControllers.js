@@ -2,7 +2,7 @@ import * as likesRepository from "../repositories/likesRepository.js";
 
 const likePost = async (req, res) => {
   const { postId } = req.params;
-  const { userId } = req.body; //VAI VIR DO MIDDLEWARE res.locals
+  const { userId } = req.locals;
 
   if (isNaN(postId)) {
     return res.sendStatus(400);
@@ -33,7 +33,7 @@ const likePost = async (req, res) => {
 
 const unlikePost = async (req, res) => {
   const { postId } = req.params;
-  const { userId } = req.body;  //VAI VIR DO MIDDLEWARE res.locals
+  const { userId } = req.locals;
 
   if (isNaN(postId)) {
     return res.sendStatus(400);
