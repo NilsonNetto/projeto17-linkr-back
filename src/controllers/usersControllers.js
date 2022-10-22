@@ -1,7 +1,7 @@
 import {
   searchPageUser,
   searchUser,
-} from "../repositories/userRepositories.js";
+} from "../repositories/userRepository.js";
 
 const showPageUser = async (req, res) => {
   const { id } = req.params;
