@@ -1,4 +1,4 @@
-import { listTrendingHashtags } from "../repositories/hashtagsRepository.js";
+import { listTrendingHashtags, listPostsWithHashtag } from "../repositories/hashtagsRepository.js";
 
 const getHashtags = async (req, res) => {
 
@@ -11,7 +11,22 @@ const getHashtags = async (req, res) => {
     console.log(error);
     res.sendStatus(500);
   }
-
 };
 
-export { getHashtags };
+const getPostsWithHashtag = async (req, res) => {
+  const { hashtag } = req.params;
+  const { userId } = res.locals;
+
+  try {
+
+    const postsWithHashtags = await listPostsWithHashtag(userId, hashtag);
+
+    res.send(postsWithHashtags.rows);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+};
+
+
+export { getHashtags, getPostsWithHashtag };
