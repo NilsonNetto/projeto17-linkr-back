@@ -4,7 +4,7 @@ import { userLogged } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/user/:id", showPageUser);
-router.get("/timeline/:name", findUser);
+router.get("/user/:id", userLogged, showPageUser);
+router.get("/timeline/:name", userLogged, findUser);
 
 export default router;
