@@ -86,7 +86,10 @@ export async function SignIn (req, res) {
             token
           });
 
-        res.status(200).send({token});
+        res.status(200).send({
+            token: token, 
+            profilePicture: findUser.rows[0].profilePicture
+        });
 
     } catch (error) {
         res.sendStatus(500);

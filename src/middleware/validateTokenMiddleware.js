@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { serverErrorResponse } from "../controllers/controllerHelper.js";
-import { validateTokenRepository } from "../repositories/tokenRepository.js";
 
 async function validateToken(req, res, next) {
   const { authorization } = req.headers;
