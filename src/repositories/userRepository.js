@@ -12,13 +12,18 @@ const searchPageUser = async (id) => {
       u."profilePicture",
       p.description,
       p.url,
-      COUNT(u2.username) AS "postLikes"
+        CASE WHEN EXISTS (SELECT * FROM likes l2 WHERE l2."userId" = $1 AND l2."postId" = p.id)  
+        THEN TRUE
+        ELSE FALSE 
+      END AS "userLike" ,
+      array_agg(u2.username) AS "postLikes"
     FROM posts p
     JOIN users u ON p."userId" = u.id
     LEFT JOIN likes l ON l."postId" = p.id
     LEFT JOIN users u2 ON l."userId" = u2.id
-    WHERE u.id = $1
-    GROUP BY p.id, u.username, u."profilePicture"`,
+    WHERE u.id=$1
+    GROUP BY p.id, u.username, u."profilePicture"
+    ORDER BY p.id;`,
       [id]
     )
   ).rows;
