@@ -5,6 +5,6 @@ import { userLogged } from "./../middleware/authMiddleware.js";
 const postsRouter = express.Router();
 
 postsRouter.post("/publish", userLogged, publishPost);
-postsRouter.get("/timeline", userLogged, getPosts);
+postsRouter.get("/timeline", getPosts);
 
 export default postsRouter;

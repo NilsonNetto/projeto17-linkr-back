@@ -72,6 +72,7 @@ const listPosts = async (userId) => {
       `
     SELECT
       p.id ,
+      p."userId",
       u.username,
       u."profilePicture",
       p.description,

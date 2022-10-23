@@ -8,6 +8,7 @@ const searchPageUser = async (id) => {
     await connection.query(
       `SELECT
       p.id ,
+      p."userId",
       u.username,
       u."profilePicture",
       p.description,
