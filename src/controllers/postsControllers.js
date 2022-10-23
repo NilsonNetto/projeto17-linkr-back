@@ -26,17 +26,37 @@ async function publishPost(req, res) {
     return res.status(422).send(error.details.map((detail) => detail.message));
   }
 
-  //VERIFICAÇÃO DAS HASHTAGS
-
   try {
-    await connection.query(
-      'INSERT INTO posts ("userId", description, url) VALUES ($1, $2, $3)',
+    //VERIFICAÇÃO DAS HASHTAGS - ADICIONAR QND NÃO EXISTIR
+    const hashtags = description.split(' ').filter(v=> v.startsWith('#'));
+
+    if (hashtags.length > 0) {
+      for (let i = 0; i < hashtags.length; i++) {
+        const hashtagExist = await connection.query('SELECT id FROM hashtags WHERE name = $1', [hashtags[i]]);
+        if (hashtagExist.rowCount === 0) {
+          await connection.query('INSERT INTO hashtags (name) VALUES ($1)', [hashtags[i]]);
+        } 
+      }
+    }
+
+    const post = await connection.query(
+      'INSERT INTO posts ("userId", description, url) VALUES ($1, $2, $3) RETURNING id',
       [userId, description, link]
     );
+    const postId = post.rows[0].id;
+
     const published = await connection.query(
-      'SELECT id AS "postId", description, url FROM posts WHERE description = $1 AND url = $2',
-      [description, link]
+      'SELECT id AS "postId", description, url FROM posts WHERE id = $1',
+      [postId]
     );
+
+    //INSERINDO NA TABELA POSTSHASHTAGS
+    if (hashtags.length > 0) {
+      for (let i = 0; i < hashtags.length; i++) {
+        const hashtagId = await connection.query('SELECT id FROM hashtags WHERE name = $1', [hashtags[i]]);
+        await connection.query('INSERT INTO "postsHashtags" ("postId", "hashtagId") VALUES ($1, $2)', [postId, hashtagId.rows[0].id]);
+      }
+    }
 
     res.status(200).send(published.rows);
   } catch (error) {
