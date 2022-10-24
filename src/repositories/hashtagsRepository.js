@@ -40,11 +40,12 @@ const listPostsWithHashtag = async (userId, hashtag) => {
     JOIN hashtags h ON h.id =ph."hashtagId" 
     WHERE h.name = $2
     GROUP BY p.id, u.username, u."profilePicture"
-    ORDER BY p.id DESC;
+    ORDER BY p.id DESC
+    LIMIT 20;
     `,
       [userId, hashtag]
     )
-  );
+  ).rows;
 };
 
 export { listTrendingHashtags, listPostsWithHashtag };

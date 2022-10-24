@@ -6,7 +6,7 @@ async function putPost(req, res) {
 
   try {
     await insertNewEditPost({ newPost, postId });
-    return res.sendStatus(201);
+    return res.status(201).send(newPost);
   } catch (error) {
     serverErrorResponse(res, error);
   }

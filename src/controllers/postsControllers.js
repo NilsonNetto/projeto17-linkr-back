@@ -1,13 +1,12 @@
-import connection from "../db/db.js";
 import dotenv from "dotenv";
 import joi from "joi";
+import urlMetadata from "url-metadata";
+import { insertHashtag, insertPost, insertPostHashtag, listPublishedPost, listHashtag, listPosts } from "../repositories/postRepository.js";
 dotenv.config();
 
 async function publishPost(req, res) {
-  //COMO USUÁRIO LOGADO - MIDDLEWARE
   const userId = res.locals.userId;
 
-  //QUERO PUBLICAR UM POST
   const { description, link } = req.body;
 
   //VALIDAÇÃO - SE TEM LINK A SER PUBLICADO (SCHEMA)
@@ -26,17 +25,30 @@ async function publishPost(req, res) {
     return res.status(422).send(error.details.map((detail) => detail.message));
   }
 
-  //VERIFICAÇÃO DAS HASHTAGS
-
   try {
-    await connection.query(
-      'INSERT INTO posts ("userId", description, url) VALUES ($1, $2, $3)',
-      [userId, description, link]
-    );
-    const published = await connection.query(
-      'SELECT id AS "postId", description, url FROM posts WHERE description = $1 AND url = $2',
-      [description, link]
-    );
+    //VERIFICAÇÃO DAS HASHTAGS - ADICIONAR QND NÃO EXISTIR
+    let hashtags = description.split(' ').filter(v => v.startsWith('#'));
+    hashtags = hashtags.map(hashtag => hashtag.replace("#", ""));
+    if (hashtags.length > 0) {
+      for (let i = 0; i < hashtags.length; i++) {
+        const hashtagExist = await listHashtag(hashtags[i]);
+        if (hashtagExist.rowCount === 0) {
+          await insertHashtag(hashtags[i]);
+        }
+      }
+    }
+
+    const postId = await insertPost(userId, description, link);
+
+    const published = await listPublishedPost(postId);
+
+    //INSERINDO NA TABELA POSTSHASHTAGS
+    if (hashtags.length > 0) {
+      for (let i = 0; i < hashtags.length; i++) {
+        const hashtagId = await listHashtag(hashtags[i]);
+        await insertPostHashtag(postId, hashtagId);
+      }
+    }
 
     res.status(200).send(published.rows);
   } catch (error) {
@@ -45,54 +57,31 @@ async function publishPost(req, res) {
 }
 
 async function getPosts(req, res) {
-  //COMO USUÁRIO LOGADO - MIDDLEWARE
   const userId = res.locals.userId;
   console.log(userId);
 
-  //QUERO VER OS POSTS DA MINHA TIMELINE
   try {
-    const posts = (await listPosts(userId)).reverse();
+    const posts = await listPosts(userId);
+    const postsWithMetadatas = [];
 
-    console.log(posts);
-    if (posts.length > 20) {
-      let postsLimited = [];
-      for (let i = 0; i < 20; i++) {
-        postsLimited.push(posts[i]);
-      }
-      return res.status(200).send(postsLimited);
+    for (let i = 0; i < posts.length; i++) {
+      const metadata = await urlMetadata(posts[i].url);
+
+      postsWithMetadatas.push({
+        ...posts[i],
+        metadata: {
+          title: metadata.title,
+          description: metadata.description,
+          image: metadata.image
+        }
+      });
     }
 
-    res.status(200).send(posts);
+    return res.status(200).send(postsWithMetadatas);
+
   } catch (error) {
     res.status(500).send(error.message);
   }
 }
-
-const listPosts = async (userId) => {
-  return (
-    await connection.query(
-      `
-    SELECT
-      p.id ,
-      u.username,
-      u."profilePicture",
-      p.description,
-      p.url,
-        CASE WHEN EXISTS (SELECT * FROM likes l2 WHERE l2."userId" = $1 AND l2."postId" = p.id)  
-        THEN TRUE
-        ELSE FALSE 
-      END AS "userLike" ,
-      array_agg(u2.username) AS "postLikes"
-    FROM posts p
-    JOIN users u ON p."userId" = u.id
-    LEFT JOIN likes l ON l."postId" = p.id
-    LEFT JOIN users u2 ON l."userId" = u2.id
-    GROUP BY p.id, u.username, u."profilePicture"
-    ORDER BY p.id;
-    `,
-      [userId]
-    )
-  ).rows;
-};
 
 export { publishPost, getPosts };

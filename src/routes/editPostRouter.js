@@ -8,6 +8,6 @@ import { validateToken } from "../middleware/validateTokenMiddleware.js";
 const router = Router();
 
 router.put("/editPost", validateToken, validadePost, validateNewPost, putPost);
-router.delete("/deletePost", validateToken, validadePost, deletePost);
+router.delete("/deletePost/:postId", validateToken, validadePost, deletePost);
 
 export default router;

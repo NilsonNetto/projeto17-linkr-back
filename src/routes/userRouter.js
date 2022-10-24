@@ -1,10 +1,10 @@
 import { findUser, showPageUser } from "../controllers/usersControllers.js";
 import express from "express";
-import { userLogged } from "../middleware/authMiddleware.js";
+import { validateToken } from "../middleware/validateTokenMiddleware.js";
 
 const router = express.Router();
 
-router.get("/user/:id", showPageUser);
-router.get("/timeline/:name", findUser);
+router.get("/user/:id", validateToken, showPageUser);
+router.get("/users/:name", validateToken, findUser);
 
 export default router;
