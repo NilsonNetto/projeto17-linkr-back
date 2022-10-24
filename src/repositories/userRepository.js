@@ -1,10 +1,17 @@
 import connection from "../db/db.js";
 
-const searchPageUser = async (id) => {
-  const user = (
-    await connection.query(`SELECT users.username FROM users WHERE id=$1`, [id])
+const searchUserById = async (id) => {
+  return (
+    await connection.query(`
+    SELECT 
+    users.username 
+    FROM users WHERE id=$1`,
+      [id])
   ).rows[0];
-  const pageUser = (
+};
+
+const searchUserPosts = async (id) => {
+  return (
     await connection.query(
       `SELECT
       p.id ,
@@ -29,8 +36,6 @@ const searchPageUser = async (id) => {
       [id]
     )
   ).rows;
-  const postUser = { username: user.username, posts: pageUser };
-  return postUser;
 };
 
 const searchUser = async (name) => {
@@ -43,4 +48,4 @@ const searchUser = async (name) => {
 
   return user;
 };
-export { searchPageUser, searchUser };
+export { searchUserById, searchUserPosts, searchUser };
