@@ -1,7 +1,4 @@
-import {
-  searchPageUser,
-  searchUser,
-} from "../repositories/userRepository.js";
+import { searchPageUser, searchUser } from "../repositories/userRepository.js";
 
 const showPageUser = async (req, res) => {
   const { id } = req.params;
@@ -18,7 +15,7 @@ const showPageUser = async (req, res) => {
 
 const findUser = async (req, res) => {
   const { name } = req.params;
-  console.log(name);
+
   try {
     const user = await searchUser(name);
 
