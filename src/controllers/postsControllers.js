@@ -1,8 +1,7 @@
-import connection from "../db/db.js";
 import dotenv from "dotenv";
 import joi from "joi";
 import urlMetadata from "url-metadata";
-import { insertHashtag, insertPost, insertPostHashtag, listHashtag, listPosts } from "../repositories/postRepository.js";
+import { insertHashtag, insertPost, insertPostHashtag, listPublishedPost, listHashtag, listPosts } from "../repositories/postRepository.js";
 dotenv.config();
 
 async function publishPost(req, res) {
@@ -28,26 +27,26 @@ async function publishPost(req, res) {
 
   try {
     //VERIFICAÇÃO DAS HASHTAGS - ADICIONAR QND NÃO EXISTIR
-    const hashtags = description.split(' ').filter(v => v.startsWith('#'));
-
+    let hashtags = description.split(' ').filter(v => v.startsWith('#'));
+    hashtags = hashtags.map(hashtag => hashtag.replace("#", ""));
     if (hashtags.length > 0) {
       for (let i = 0; i < hashtags.length; i++) {
-        const hashtagExist = listHashtag(hashtags[i]);
+        const hashtagExist = await listHashtag(hashtags[i]);
         if (hashtagExist.rowCount === 0) {
-          insertHashtag(hashtags[i]);
+          await insertHashtag(hashtags[i]);
         }
       }
     }
 
-    const postId = insertPost(userId, description, link);
+    const postId = await insertPost(userId, description, link);
 
-    const published = listPublishedPost(postId);
+    const published = await listPublishedPost(postId);
 
     //INSERINDO NA TABELA POSTSHASHTAGS
     if (hashtags.length > 0) {
       for (let i = 0; i < hashtags.length; i++) {
-        const hashtagId = listHashtag([hashtags[i]]);
-        insertPostHashtag(postId, hashtagId);
+        const hashtagId = await listHashtag(hashtags[i]);
+        await insertPostHashtag(postId, hashtagId);
       }
     }
 
