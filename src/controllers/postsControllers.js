@@ -47,11 +47,13 @@ async function publishPost(req, res) {
 async function getPosts(req, res) {
   //COMO USUÁRIO LOGADO - MIDDLEWARE
   const userId = res.locals.userId;
+  console.log(userId);
 
   //QUERO VER OS POSTS DA MINHA TIMELINE
   try {
-    const posts = (await listPosts()).reverse();
+    const posts = (await listPosts(userId)).reverse();
 
+    console.log(posts);
     if (posts.length > 20) {
       let postsLimited = [];
       for (let i = 0; i < 20; i++) {
