@@ -85,7 +85,6 @@ async function getPosts(req, res) {
           image: metadata.image
         }
       });
-
     }
 
     return res.status(200).send(postsWithMetadatas);

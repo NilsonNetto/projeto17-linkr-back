@@ -1,3 +1,4 @@
+import urlMetadata from "url-metadata";
 import { listTrendingHashtags, listPostsWithHashtag } from "../repositories/hashtagsRepository.js";
 
 const getHashtags = async (req, res) => {
@@ -20,8 +21,23 @@ const getPostsWithHashtag = async (req, res) => {
   try {
 
     const postsWithHashtags = await listPostsWithHashtag(userId, hashtag);
+    const postsWithMetadatas = [];
 
-    res.send(postsWithHashtags.rows);
+    for (let i = 0; i < postsWithHashtags.length; i++) {
+      const metadata = await urlMetadata(postsWithHashtags[i].url);
+
+      postsWithMetadatas.push({
+        ...postsWithHashtags[i],
+        metadata: {
+          title: metadata.title,
+          description: metadata.description,
+          image: metadata.image
+        }
+      });
+    }
+
+
+    res.send(postsWithMetadatas);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
