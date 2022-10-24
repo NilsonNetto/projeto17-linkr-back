@@ -4,7 +4,7 @@ import { validateToken } from "../middleware/validateTokenMiddleware.js";
 
 const router = express.Router();
 
-router.get("/user/:id", showPageUser);
-router.get("/users/:name", findUser);
+router.get("/user/:id", validateToken, showPageUser);
+router.get("/users/:name", validateToken, findUser);
 
 export default router;
