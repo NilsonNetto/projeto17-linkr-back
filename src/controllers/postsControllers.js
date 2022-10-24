@@ -1,6 +1,7 @@
 import connection from "../db/db.js";
 import dotenv from "dotenv";
 import joi from "joi";
+import urlMetadata from "url-metadata";
 dotenv.config();
 
 async function publishPost(req, res) {
@@ -28,14 +29,14 @@ async function publishPost(req, res) {
 
   try {
     //VERIFICAÇÃO DAS HASHTAGS - ADICIONAR QND NÃO EXISTIR
-    const hashtags = description.split(' ').filter(v=> v.startsWith('#'));
+    const hashtags = description.split(' ').filter(v => v.startsWith('#'));
 
     if (hashtags.length > 0) {
       for (let i = 0; i < hashtags.length; i++) {
         const hashtagExist = await connection.query('SELECT id FROM hashtags WHERE name = $1', [hashtags[i]]);
         if (hashtagExist.rowCount === 0) {
           await connection.query('INSERT INTO hashtags (name) VALUES ($1)', [hashtags[i]]);
-        } 
+        }
       }
     }
 
@@ -70,17 +71,25 @@ async function getPosts(req, res) {
 
   //QUERO VER OS POSTS DA MINHA TIMELINE
   try {
-    const posts = (await listPosts()).reverse();
+    const posts = await listPosts(userId);
+    const postsWithMetadatas = [];
 
-    if (posts.length > 20) {
-      let postsLimited = [];
-      for (let i = 0; i < 20; i++) {
-        postsLimited.push(posts[i]);
-      }
-      return res.status(200).send(postsLimited);
+    for (let i = 0; i < posts.length; i++) {
+      const metadata = await urlMetadata(posts[i].url);
+
+      postsWithMetadatas.push({
+        ...posts[i],
+        metadata: {
+          title: metadata.title,
+          description: metadata.description,
+          image: metadata.image
+        }
+      });
+
     }
 
-    res.status(200).send(posts);
+    return res.status(200).send(postsWithMetadatas);
+
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -92,7 +101,7 @@ const listPosts = async (userId) => {
       `
     SELECT
       p.id ,
-      p."userId",
+      p."userId",  
       u.username,
       u."profilePicture",
       p.description,
@@ -107,7 +116,8 @@ const listPosts = async (userId) => {
     LEFT JOIN likes l ON l."postId" = p.id
     LEFT JOIN users u2 ON l."userId" = u2.id
     GROUP BY p.id, u.username, u."profilePicture"
-    ORDER BY p.id;
+    ORDER BY p.id DESC
+    LIMIT 20;
     `,
       [userId]
     )
