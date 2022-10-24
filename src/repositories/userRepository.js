@@ -24,7 +24,8 @@ const searchPageUser = async (id) => {
     LEFT JOIN users u2 ON l."userId" = u2.id
     WHERE u.id=$1
     GROUP BY p.id, u.username, u."profilePicture"
-    ORDER BY p.id;`,
+    ORDER BY p.id DESC
+    LIMIT 20;`,
       [id]
     )
   ).rows;
