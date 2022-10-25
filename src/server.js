@@ -7,6 +7,7 @@ import postsRouter from "./routes/postsRouter.js";
 import hashtagsRouters from "./routes/hashtagsRouter.js";
 import likesRoutes from "./routes/likesRouter.js";
 import editPostRouter from "./routes/editPostRouter.js";
+import commentRouter from "./routes/commentRouter.js";
 dotenv.config();
 
 const app = express();
@@ -21,7 +22,7 @@ app.use(postsRouter);
 app.use(hashtagsRouters);
 app.use(likesRoutes);
 app.use(editPostRouter);
-
+app.use(commentRouter)
 
 app.listen(process.env.PORT, () => {
   console.log(`Listening on port ${process.env.PORT}`);
