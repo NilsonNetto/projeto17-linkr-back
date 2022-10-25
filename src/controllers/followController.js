@@ -2,7 +2,7 @@ import { listFollow, insertFollow, deleteFollow } from "../repositories/followRe
 
 const followUser = async (req, res) => {
   const { userId } = res.locals;
-  const followedId = Number(req.params.userId);
+  const followedId = req.params.userId;
 
   if (isNaN(followedId)) {
     return res.status(400).send('user id is not a number');
