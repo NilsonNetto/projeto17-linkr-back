@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRouter.js";
 import postsRouter from "./routes/postsRouter.js";
 import hashtagsRouters from "./routes/hashtagsRouter.js";
 import likesRoutes from "./routes/likesRouter.js";
+import followRouter from "./routes/followsRouter.js";
 import editPostRouter from "./routes/editPostRouter.js";
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(userRoutes);
 app.use(postsRouter);
 app.use(hashtagsRouters);
 app.use(likesRoutes);
+app.use(followRouter);
 app.use(editPostRouter);
 
 
