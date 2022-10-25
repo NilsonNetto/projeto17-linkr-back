@@ -8,7 +8,7 @@ async function insertComment(req, res) {
   try {
     await insertNewComment({ comment, postId, userId });
 
-    return res.status(201).send("comentário criado");
+    return res.status(201).send({ comment, postId, userId });
   } catch (error) {
     serverErrorResponse(res, error);
   }
