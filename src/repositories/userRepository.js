@@ -46,7 +46,8 @@ const searchUser = async (name, userId) => {
       `SELECT users.id, users.username, users."profilePicture", followers."idFollowed" AS following
       FROM users 
       LEFT JOIN followers ON followers."idFollower"=$1 AND followers."idFollowed"=users.id
-      WHERE users.username ILIKE '${name}%'`,
+      WHERE users.username ILIKE '${name}%'
+      ORDER BY following`,
       [userId]
     )
   ).rows;
