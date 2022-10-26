@@ -9,26 +9,11 @@ const showPageUser = async (req, res) => {
   try {
     const { username } = await searchUserById(id);
     let follow = await listFollow(userId, id);
-    const userPosts = await searchUserPosts(id);
-
-    const postsWithMetadatas = [];
+    const posts = await searchUserPosts(id);
 
     follow.rowCount === 0 ? follow = false : follow = true;
 
-    for (let i = 0; i < userPosts.length; i++) {
-      const metadata = await urlMetadata(userPosts[i].url);
-
-      postsWithMetadatas.push({
-        ...userPosts[i],
-        metadata: {
-          title: metadata.title,
-          description: metadata.description,
-          image: metadata.image
-        }
-      });
-    }
-
-    res.status(200).send({ username, follow, posts: postsWithMetadatas });
+    res.status(200).send({ username, follow, posts });
   } catch (error) {
     console.log(error.message);
     res.sendStatus(500);

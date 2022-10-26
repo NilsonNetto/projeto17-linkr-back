@@ -61,22 +61,8 @@ async function getPosts(req, res) {
 
   try {
     const posts = await listPosts(userId);
-    const postsWithMetadatas = [];
 
-    for (let i = 0; i < posts.length; i++) {
-      const metadata = await urlMetadata(posts[i].url);
-
-      postsWithMetadatas.push({
-        ...posts[i],
-        metadata: {
-          title: metadata.title,
-          description: metadata.description,
-          image: metadata.image
-        }
-      });
-    }
-
-    return res.status(200).send(postsWithMetadatas);
+    return res.status(200).send(posts);
 
   } catch (error) {
     res.status(500).send(error.message);
