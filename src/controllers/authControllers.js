@@ -97,6 +97,7 @@ export async function SignIn(req, res) {
       profilePicture: findUser.rows[0].profilePicture,
     });
   } catch (error) {
+    console.log(error);
     res.sendStatus(500);
   }
 }

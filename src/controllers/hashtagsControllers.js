@@ -20,9 +20,29 @@ const getPostsWithHashtag = async (req, res) => {
 
   try {
 
-    const postsWithHashtags = await listPostsWithHashtag(userId, hashtag);
+    const posts = await listPostsWithHashtag(userId, hashtag);
 
-    res.send(postsWithHashtags);
+    await Promise.all(
+      posts.map(async (post) => {
+        try {
+          const { title, description, image } = await (urlMetadata(post.url));
+          post.metadata = {
+            title,
+            description,
+            image
+          };
+        } catch (error) {
+          console.log(error);
+          post.metadata = {
+            title: 'metadata error',
+            description: 'metadata error',
+            image: 'metadata error',
+          };
+        }
+      })
+    );
+
+    res.send(posts);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);

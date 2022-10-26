@@ -17,6 +17,27 @@ const showPageUser = async (req, res) => {
 
     follow.rowCount === 0 ? (follow = false) : (follow = true);
 
+    await Promise.all(
+      posts.map(async (post) => {
+        try {
+          const { title, description, image } = await (urlMetadata(post.url));
+          post.metadata = {
+            title,
+            description,
+            image
+          };
+        } catch (error) {
+          console.log(error);
+          post.metadata = {
+            title: 'metadata error',
+            description: 'metadata error',
+            image: 'metadata error',
+          };
+        }
+      })
+    );
+
+
     res.status(200).send({ username, follow, posts });
   } catch (error) {
     console.log(error.message);
