@@ -2,11 +2,13 @@ import connection from "../db/db.js";
 
 const searchUserById = async (id) => {
   return (
-    await connection.query(`
+    await connection.query(
+      `
     SELECT 
     users.username 
     FROM users WHERE id=$1`,
-      [id])
+      [id]
+    )
   ).rows[0];
 };
 
@@ -38,11 +40,14 @@ const searchUserPosts = async (id) => {
   ).rows;
 };
 
-const searchUser = async (name) => {
+const searchUser = async (name, userId) => {
   const user = (
     await connection.query(
-      `SELECT users.id, users.username, users."profilePicture"
-    FROM users WHERE users.username ILIKE '${name}%'`
+      `SELECT users.id, users.username, users."profilePicture", followers."idFollowed" AS following
+      FROM users 
+      LEFT JOIN followers ON followers."idFollower"=$1 AND followers."idFollowed"=users.id
+      WHERE users.username ILIKE '${name}%'`,
+      [userId]
     )
   ).rows;
 

@@ -1,5 +1,9 @@
 import urlMetadata from "url-metadata";
-import { searchUserById, searchUserPosts, searchUser } from "../repositories/userRepository.js";
+import {
+  searchUserById,
+  searchUserPosts,
+  searchUser,
+} from "../repositories/userRepository.js";
 import { listFollow } from "../repositories/followRepository.js";
 
 const showPageUser = async (req, res) => {
@@ -13,7 +17,7 @@ const showPageUser = async (req, res) => {
 
     const postsWithMetadatas = [];
 
-    follow.rowCount === 0 ? follow = false : follow = true;
+    follow.rowCount === 0 ? (follow = false) : (follow = true);
 
     for (let i = 0; i < userPosts.length; i++) {
       const metadata = await urlMetadata(userPosts[i].url);
@@ -23,8 +27,8 @@ const showPageUser = async (req, res) => {
         metadata: {
           title: metadata.title,
           description: metadata.description,
-          image: metadata.image
-        }
+          image: metadata.image,
+        },
       });
     }
 
@@ -37,9 +41,9 @@ const showPageUser = async (req, res) => {
 
 const findUser = async (req, res) => {
   const { name } = req.params;
-
+  const userId = res.locals.userId;
   try {
-    const user = await searchUser(name);
+    const user = await searchUser(name, userId);
 
     res.status(200).send(user);
   } catch (error) {
