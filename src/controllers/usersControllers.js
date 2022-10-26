@@ -1,5 +1,9 @@
 import urlMetadata from "url-metadata";
-import { searchUserById, searchUserPosts, searchUser } from "../repositories/userRepository.js";
+import {
+  searchUserById,
+  searchUserPosts,
+  searchUser,
+} from "../repositories/userRepository.js";
 import { listFollow } from "../repositories/followRepository.js";
 
 const showPageUser = async (req, res) => {
@@ -11,7 +15,7 @@ const showPageUser = async (req, res) => {
     let follow = await listFollow(userId, id);
     const posts = await searchUserPosts(id);
 
-    follow.rowCount === 0 ? follow = false : follow = true;
+    follow.rowCount === 0 ? (follow = false) : (follow = true);
 
     res.status(200).send({ username, follow, posts });
   } catch (error) {
@@ -22,9 +26,9 @@ const showPageUser = async (req, res) => {
 
 const findUser = async (req, res) => {
   const { name } = req.params;
-
+  const userId = res.locals.userId;
   try {
-    const user = await searchUser(name);
+    const user = await searchUser(name, userId);
 
     res.status(200).send(user);
   } catch (error) {
