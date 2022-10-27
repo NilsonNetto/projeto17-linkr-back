@@ -82,7 +82,7 @@ async function listPosts(userId) {
     LEFT JOIN likes l ON l."postId" = p.id
     LEFT JOIN users u2 ON l."userId" = u2.id
     LEFT JOIN followers ON followers."idFollower"=$1 AND followers."idFollowed"=u.id
-    WHERE followers."idFollowed" IS NOT NULL 
+    WHERE followers."idFollowed" IS NOT NULL OR p."userId" = $1
     GROUP BY p.id, u.username, u."profilePicture", followers."idFollowed"
     ORDER BY p.id DESC
     LIMIT 20;
