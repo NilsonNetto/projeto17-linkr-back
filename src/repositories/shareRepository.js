@@ -58,5 +58,11 @@ async function getAllPostComments ({postId}) {
     `, [postId]);
 }
 
+async function getLastRepost () {
+    return connection.query(`
+        SELECT * FROM reposts ORDER BY reposts.id DESC LIMIT 1;
+    `);
+}
+
 export {getRepostsInfo, getUserById, insertRepost, getPostInfo, getProfilePicture,
-    getAllPostLikes, getAllRepostsQTD, getAllPostComments};
+    getAllPostLikes, getAllRepostsQTD, getAllPostComments, getLastRepost};
