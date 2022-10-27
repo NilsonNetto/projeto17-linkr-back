@@ -26,7 +26,9 @@ async function getPostInfo ({postId, id}) {
         SELECT reposts.id AS "repostId", users.username, posts.* FROM reposts 
         JOIN users ON reposts."userId"=users.id 
         JOIN posts ON reposts."postId"=posts.id
-        WHERE reposts."postId" = $1 AND reposts."userId" = $2;
+        WHERE reposts."postId" = $1 AND reposts."userId" = $2 
+        ORDER BY reposts.id DESC 
+        LIMIT 1;
     `, [postId, id]);
 }
 
@@ -46,13 +48,13 @@ async function getAllPostLikes ({postId}) {
 
 async function getAllRepostsQTD ({postId}) {
     return connection.query(`
-        SELECT SUM(reposts.id) AS "repostsQTD" FROM reposts WHERE "postId" = $1;
+        SELECT COUNT(reposts.id) AS "repostsQTD" FROM reposts WHERE "postId" = $1;
     `, [postId]);
 }
 
 async function getAllPostComments ({postId}) {
     return connection.query(`
-        SELECT SUM(comments.id) AS comments FROM comments WHERE "postId" = $1;
+        SELECT COUNT(COALESCE(comments.id, 0)) AS comments FROM comments WHERE "postId" = $1;
     `, [postId]);
 }
 
