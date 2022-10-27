@@ -1,7 +1,9 @@
 import dotenv from "dotenv";
 import joi from "joi";
+import { listFollow } from "../repositories/followRepository.js";
 import urlMetadata from "url-metadata";
-import { insertHashtag, insertPost, insertPostHashtag, listPublishedPost, listHashtag, listPosts } from "../repositories/postRepository.js";
+import { insertHashtag, insertPost, insertPostHashtag, listPublishedPost, listHashtag, listPosts,getFollowers } from "../repositories/postRepository.js";
+
 dotenv.config();
 
 async function publishPost(req, res) {
@@ -58,6 +60,15 @@ async function publishPost(req, res) {
 
 async function getPosts(req, res) {
   const userId = res.locals.userId;
+
+  //QUERO VER OS POSTS DA MINHA TIMELINE
+  const follower = await getFollowers(userId);
+  if (!follower.length > 0) {
+    res.status(200).send({
+      message: "You don't follow anyone yet. Search for new friends!",
+    });
+    return;
+  }
 
   try {
     const posts = await listPosts(userId);
