@@ -1,6 +1,8 @@
 import connection from "../db/db.js";
 import dotenv from "dotenv";
 import joi from "joi";
+import { getFollowers, listPosts } from "../repositories/postRepository.js";
+import { listFollow } from "../repositories/followRepository.js";
 dotenv.config();
 
 async function publishPost(req, res) {
@@ -80,6 +82,13 @@ async function getPosts(req, res) {
   const userId = res.locals.userId;
 
   //QUERO VER OS POSTS DA MINHA TIMELINE
+  const follower = await getFollowers(userId);
+  if (!follower.length > 0) {
+    res.status(200).send({
+      message: "You don't follow anyone yet. Search for new friends!",
+    });
+    return;
+  }
   try {
     const posts = await listPosts(userId);
 
@@ -88,37 +97,5 @@ async function getPosts(req, res) {
     res.status(500).send(error.message);
   }
 }
-
-const listPosts = async (userId) => {
-  return (
-    await connection.query(
-      `
-    SELECT
-      p.id ,
-      p."userId",  
-      u.username,
-      u."profilePicture",
-      p.description,
-      followers."idFollowed" AS following,
-      p.url,
-        CASE WHEN EXISTS (SELECT * FROM likes l2 WHERE l2."userId" = $1 AND l2."postId" = p.id)  
-        THEN TRUE
-        ELSE FALSE 
-      END AS "userLike" ,
-      array_agg(u2.username) AS "postLikes"
-    FROM posts p
-    JOIN users u ON p."userId" = u.id
-    LEFT JOIN likes l ON l."postId" = p.id
-    LEFT JOIN users u2 ON l."userId" = u2.id
-    LEFT JOIN followers ON followers."idFollower"=$1 AND followers."idFollowed"=u.id
-    WHERE followers."idFollowed" IS NOT NULL 
-    GROUP BY p.id, u.username, u."profilePicture", followers."idFollowed"
-    ORDER BY p.id DESC
-    LIMIT 20;
-    `,
-      [userId]
-    )
-  ).rows;
-};
 
 export { publishPost, getPosts };

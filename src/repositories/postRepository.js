@@ -64,7 +64,7 @@ async function listPosts(userId) {
   return (
     await connection.query(
       `
-    SELECT
+     SELECT
       p.id ,
       p."userId",  
       u.username,
@@ -82,8 +82,8 @@ async function listPosts(userId) {
     LEFT JOIN likes l ON l."postId" = p.id
     LEFT JOIN users u2 ON l."userId" = u2.id
     LEFT JOIN followers ON followers."idFollower"=$1 AND followers."idFollowed"=u.id
-    
-    GROUP BY p.id, u.username, u."profilePicture"
+    WHERE followers."idFollowed" IS NOT NULL 
+    GROUP BY p.id, u.username, u."profilePicture", followers."idFollowed"
     ORDER BY p.id DESC
     LIMIT 20;
     `,
@@ -92,6 +92,16 @@ async function listPosts(userId) {
   ).rows;
 }
 
+async function getFollowers(userId) {
+  return (
+    await connection.query(
+      `
+  SELECT * FROM followers WHERE "idFollower"=$1
+    `,
+      [userId]
+    )
+  ).rows;
+}
 export {
   validatePostRepository,
   listHashtag,
@@ -100,4 +110,5 @@ export {
   listPublishedPost,
   insertPostHashtag,
   listPosts,
+  getFollowers,
 };
