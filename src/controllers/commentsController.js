@@ -2,6 +2,7 @@ import {
   insertNewComment,
   getCommentsById,
   getFollowers,
+  getAuthor,
 } from "../repositories/commentRepository.js";
 import { serverErrorResponse } from "./controllerHelper.js";
 
@@ -23,14 +24,15 @@ async function getComments(req, res) {
   const { userId } = res.locals;
 
   try {
-    const comments = (await getCommentsById({ postId, userId })).rows;
+    const comments = (await getCommentsById(postId)).rows;
     const followersList = (await getFollowers(userId)).rows[0].idFollowers;
+    const authorPost = (await getAuthor(postId)).rows[0];
 
     const commentsComplet = comments.map((user) => ({
       ...user,
       following: followersList.includes(user.userId),
+      authorPost: user.userId === authorPost.userId ? true : false,
     }));
-
     return res.status(201).send(commentsComplet);
   } catch (error) {
     serverErrorResponse(res, error);
