@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRouter.js";
-import userRoutes from "../src/routes/userRouter.js";
+import userRoutes from "./routes/userRouter.js";
 import postsRouter from "./routes/postsRouter.js";
 import hashtagsRouters from "./routes/hashtagsRouter.js";
 import likesRoutes from "./routes/likesRouter.js";
