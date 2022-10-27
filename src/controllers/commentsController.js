@@ -1,4 +1,8 @@
-import { insertNewComment } from "../repositories/commentRepository.js";
+import {
+  insertNewComment,
+  getCommentsById,
+  getFollowers,
+} from "../repositories/commentRepository.js";
 import { serverErrorResponse } from "./controllerHelper.js";
 
 async function insertComment(req, res) {
@@ -14,4 +18,23 @@ async function insertComment(req, res) {
   }
 }
 
-export { insertComment };
+async function getComments(req, res) {
+  const { postId } = req.params;
+  const { userId } = res.locals;
+
+  try {
+    const comments = (await getCommentsById({ postId, userId })).rows;
+    const followersList = (await getFollowers(userId)).rows[0].idFollowers;
+
+    const commentsComplet = comments.map((user) => ({
+      ...user,
+      following: followersList.includes(user.userId),
+    }));
+
+    return res.status(201).send(commentsComplet);
+  } catch (error) {
+    serverErrorResponse(res, error);
+  }
+}
+
+export { insertComment, getComments };
