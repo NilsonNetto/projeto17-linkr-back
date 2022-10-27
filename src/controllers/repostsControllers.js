@@ -1,4 +1,4 @@
-import connection from "../db/db.js";
+import * as shareRepository from "../repositories/shareRepository.js";
 
 export async function Reposts (req, res) {
     const { id } = req.body;
@@ -10,25 +10,50 @@ export async function Reposts (req, res) {
     }
 
     try {
-        const getId = await connection.query(`
-        SELECT posts."userId", users.id, posts.id AS "postId" FROM posts 
-        JOIN users ON posts."userId"=users.id
-        WHERE posts.id = $1;
-        `, [id]);
+        const getId = await shareRepository.getRepostsInfo({id});
 
         if (!getId.rows[0].postId) {
             return res.status(404).send("Post inexistente.");
         }
 
-        const userIdConfirmation = await connection.query(`
-            SELECT id FROM users WHERE id = $1;
-        `, [userId]);
+        const userIdConfirmation = await shareRepository.getUserById({userId});
+        const user = userIdConfirmation.rows[0].id;
+       
+        await shareRepository.insertRepost({
+            postId: getId.rows[0].postId,
+            id: user
+        });
 
-        await connection.query(`
-            INSERT INTO reposts ("postId", "userId") VALUES ($1, $2);
-        `, [getId.rows[0].postId, userIdConfirmation.rows[0].id]);
+        const posts = await shareRepository.getPostInfo({
+            postId: getId.rows[0].postId,
+            id: user
+        });
 
-        res.status(201).send("O repost foi concluido.");
+        const profilePicture = await shareRepository.getProfilePicture({
+            postId: getId.rows[0].postId
+        });
+
+        const likes = await shareRepository.getAllPostLikes({
+            postId: getId.rows[0].postId
+        });
+
+        const repostsQTD = await shareRepository.getAllRepostsQTD({
+            postId: getId.rows[0].postId
+        });
+        
+        const comments = await shareRepository.getAllPostComments({
+            postId: getId.rows[0].postId
+        });
+
+        const repostForm = {
+            postInfo: posts.rows,
+            profilePicture: profilePicture.rows[0].profilePicture,
+            postLikes: likes.rows[0].likes,
+            reposts: repostsQTD.rows[0].repostsQTD,
+            comments: comments.rows[0].comments
+        }
+
+        res.status(201).send(repostForm);
 
     } catch (error) {
         res.sendStatus(500);
