@@ -29,7 +29,6 @@ export async function Reposts (req, res) {
         });
 
         res.status(201).send("O repost foi concluido.");
-
     } catch (error) {
         res.sendStatus(500);
     }
@@ -70,6 +69,20 @@ export async function ListReposts (req, res) {
         }
 
         res.status(200).send(repostForm);
+    } catch (error) {
+        res.sendStatus(500);
+    }
+}
+
+export async function RepostsQTD (req, res) {
+    const { postId } = req.params;
+    try {
+        const repostsQTD = await shareRepository.getAllRepostsQTD({ postId });
+        const confirmPost = repostsQTD.rows.map(item => item.repostsQTD);
+        if (!confirmPost[0]) {
+            return res.status(404).send("Post inexistente.");
+        }
+        res.status(200).send({reposts: confirmPost[0]});
     } catch (error) {
         res.sendStatus(500);
     }
