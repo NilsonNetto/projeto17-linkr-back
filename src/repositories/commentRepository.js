@@ -7,24 +7,19 @@ function insertNewComment({ comment, postId, userId }) {
   );
 }
 
-function getCommentsById({ postId, userId }) {
+function getCommentsById(postId) {
   return connection.query(
     `
 	SELECT 
 	DISTINCT C.*, 
 	U.username AS "commentUser",
-	U."profilePicture",
-
-	CASE WHEN (C."userId" = $1) 
-	THEN TRUE 
-	ELSE FALSE
-	END AS "authorPost"
+	U."profilePicture"
 	
 	FROM comments C
 	JOIN users U ON U.id = C."userId"
 	LEFT JOIN followers F ON F."idFollower" = C."userId"
-	WHERE C."postId" = $2;`,
-    [userId, postId]
+	WHERE C."postId" = $1;`,
+    [postId]
   );
 }
 
@@ -37,4 +32,8 @@ function getFollowers(userId) {
   );
 }
 
-export { insertNewComment, getCommentsById, getFollowers };
+function getAuthor(postId) {
+	return connection.query(`SELECT "userId" FROM posts WHERE id = $1;`, [postId])
+}
+
+export { insertNewComment, getCommentsById, getFollowers, getAuthor };
