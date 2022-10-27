@@ -102,6 +102,16 @@ async function getFollowers(userId) {
     )
   ).rows;
 }
+
+async function countPosts(userId) {
+  return (
+    await connection.query(
+      'SELECT COUNT(posts.id) FROM posts JOIN followers f ON posts."userId" = f."idFollowed" WHERE f."idFollower" = $1',
+      [userId]
+    )
+  ).rows[0].count;
+}
+
 export {
   validatePostRepository,
   listHashtag,
@@ -111,4 +121,5 @@ export {
   insertPostHashtag,
   listPosts,
   getFollowers,
+  countPosts
 };
