@@ -11,12 +11,16 @@ export async function Reposts (req, res) {
 
     try {
         const getId = await shareRepository.getRepostsInfo({id});
-
-        if (!getId.rows[0].postId) {
+        const confirmPost = getId.rows.map(item => item.id);
+        if (!confirmPost[0]) {
             return res.status(404).send("Post inexistente.");
         }
 
         const userIdConfirmation = await shareRepository.getUserById({userId});
+        const userExists = userIdConfirmation.rows.map(item => item.id);
+        if (!userExists[0]) {
+            return res.sendStatus(401);
+        }
         const user = userIdConfirmation.rows[0].id;
        
         await shareRepository.insertRepost({

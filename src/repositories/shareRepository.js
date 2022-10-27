@@ -48,7 +48,7 @@ async function getAllPostLikes ({postId}) {
 
 async function getAllRepostsQTD ({postId}) {
     return connection.query(`
-        SELECT COUNT(reposts.id) AS "repostsQTD" FROM reposts WHERE "postId" = $1;
+        SELECT COUNT(COALESCE(reposts.id, 0)) AS "repostsQTD" FROM reposts WHERE "postId" = $1;
     `, [postId]);
 }
 
