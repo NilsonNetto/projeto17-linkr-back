@@ -46,7 +46,7 @@ export async function Reposts (req, res) {
         });
 
         const repostForm = {
-            postInfo: posts.rows,
+            postInfo: posts.rows[0],
             profilePicture: profilePicture.rows[0].profilePicture,
             postLikes: likes.rows[0].likes,
             reposts: repostsQTD.rows[0].repostsQTD,
