@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import joi from "joi";
 import { listFollow } from "../repositories/followRepository.js";
 import urlMetadata from "url-metadata";
-import { insertHashtag, insertPost, insertPostHashtag, listPublishedPost, listHashtag, listPosts,getFollowers } from "../repositories/postRepository.js";
+import { insertHashtag, insertPost, insertPostHashtag, listPublishedPost, listHashtag, listPosts,getFollowers, countPosts } from "../repositories/postRepository.js";
 
 dotenv.config();
 
@@ -100,4 +100,16 @@ async function getPosts(req, res) {
   }
 }
 
-export { publishPost, getPosts };
+async function getNewPosts(req, res) {
+  const userId = res.locals.userId;
+
+  try {
+    const newPosts = await countPosts(userId);
+
+    return res.status(200).send(newPosts);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
+export { publishPost, getPosts, getNewPosts };
