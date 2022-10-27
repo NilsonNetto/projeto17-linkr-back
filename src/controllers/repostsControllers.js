@@ -11,12 +11,16 @@ export async function Reposts (req, res) {
 
     try {
         const getId = await shareRepository.getRepostsInfo({id});
-
-        if (!getId.rows[0].postId) {
+        const confirmPost = getId.rows.map(item => item.id);
+        if (!confirmPost[0]) {
             return res.status(404).send("Post inexistente.");
         }
 
         const userIdConfirmation = await shareRepository.getUserById({userId});
+        const userExists = userIdConfirmation.rows.map(item => item.id);
+        if (!userExists[0]) {
+            return res.sendStatus(401);
+        }
         const user = userIdConfirmation.rows[0].id;
        
         await shareRepository.insertRepost({
@@ -24,25 +28,37 @@ export async function Reposts (req, res) {
             id: user
         });
 
+        res.status(201).send("O repost foi concluido.");
+
+    } catch (error) {
+        res.sendStatus(500);
+    }
+}
+
+export async function ListReposts (req, res) {
+    const userId = res.locals.userId;
+    try {
+        const post = await shareRepository.getLastRepost();
+
         const posts = await shareRepository.getPostInfo({
-            postId: getId.rows[0].postId,
-            id: user
+            postId: post.rows[0].postId,
+            id: userId
         });
 
         const profilePicture = await shareRepository.getProfilePicture({
-            postId: getId.rows[0].postId
+            postId: post.rows[0].postId
         });
 
         const likes = await shareRepository.getAllPostLikes({
-            postId: getId.rows[0].postId
+            postId: post.rows[0].postId
         });
 
         const repostsQTD = await shareRepository.getAllRepostsQTD({
-            postId: getId.rows[0].postId
+            postId: post.rows[0].postId
         });
         
         const comments = await shareRepository.getAllPostComments({
-            postId: getId.rows[0].postId
+            postId: post.rows[0].postId
         });
 
         const repostForm = {
@@ -53,10 +69,8 @@ export async function Reposts (req, res) {
             comments: comments.rows[0].comments
         }
 
-        res.status(201).send(repostForm);
-
+        res.status(200).send(repostForm);
     } catch (error) {
         res.sendStatus(500);
-        console.log(error.message);
     }
 }

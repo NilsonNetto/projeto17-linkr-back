@@ -48,7 +48,7 @@ async function getAllPostLikes ({postId}) {
 
 async function getAllRepostsQTD ({postId}) {
     return connection.query(`
-        SELECT COUNT(reposts.id) AS "repostsQTD" FROM reposts WHERE "postId" = $1;
+        SELECT COUNT(COALESCE(reposts.id, 0)) AS "repostsQTD" FROM reposts WHERE "postId" = $1;
     `, [postId]);
 }
 
@@ -58,5 +58,11 @@ async function getAllPostComments ({postId}) {
     `, [postId]);
 }
 
+async function getLastRepost () {
+    return connection.query(`
+        SELECT * FROM reposts ORDER BY reposts.id DESC LIMIT 1;
+    `);
+}
+
 export {getRepostsInfo, getUserById, insertRepost, getPostInfo, getProfilePicture,
-    getAllPostLikes, getAllRepostsQTD, getAllPostComments};
+    getAllPostLikes, getAllRepostsQTD, getAllPostComments, getLastRepost};
