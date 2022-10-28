@@ -60,6 +60,11 @@ async function publishPost(req, res) {
 
 async function getPosts(req, res) {
   const userId = res.locals.userId;
+  const offset = req.params.offset;
+
+  if (!offset) {
+    offset = 0;
+  }
 
   //QUERO VER OS POSTS DA MINHA TIMELINE
   const follower = await getFollowers(userId);
@@ -71,7 +76,7 @@ async function getPosts(req, res) {
   }
 
   try {
-    const posts = await listPosts(userId);
+    const posts = await listPosts(userId, offset);
 
     await Promise.all(
       posts.map(async (post) => {
