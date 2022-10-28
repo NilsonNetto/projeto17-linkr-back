@@ -56,4 +56,28 @@ const unlikePost = async (req, res) => {
   }
 };
 
-export { likePost, unlikePost };
+const getLikes = async (req, res) => {
+  const { postId } = req.params;
+  const { userId } = res.locals;
+
+  if (isNaN(postId)) {
+    return res.sendStatus(400);
+  }
+
+  try {
+
+    let isLiked = await likesRepository.verifyLike(postId, userId);
+
+    isLiked ? isLiked = true : isLiked = false;
+
+    const postLikes = await likesRepository.listLikes(postId);
+
+    return res.status(200).send({ userId, isLiked, postLikes });
+
+  } catch (error) {
+    console.log(error);
+    return res.sendStatus(500);
+  }
+};
+
+export { likePost, unlikePost, getLikes };

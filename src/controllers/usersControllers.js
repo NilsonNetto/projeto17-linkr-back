@@ -38,7 +38,7 @@ const showPageUser = async (req, res) => {
     );
 
 
-    res.status(200).send({ username, follow, posts });
+    res.status(200).send({ username, userId, follow, posts });
   } catch (error) {
     console.log(error.message);
     res.sendStatus(500);
