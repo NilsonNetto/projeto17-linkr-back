@@ -100,7 +100,12 @@ async function getFollowers(userId) {
 async function countPosts(userId) {
   return (
     await connection.query(
-      'SELECT COUNT(posts.id) FROM posts JOIN followers f ON posts."userId" = f."idFollowed" WHERE f."idFollower" = $1',
+      `SELECT
+      COUNT(posts.id) 
+      FROM posts 
+      JOIN followers f
+       ON posts."userId" = f."idFollowed" 
+       WHERE f."idFollower" = $1 OR posts."userId" = $1`,
       [userId]
     )
   ).rows[0].count;
