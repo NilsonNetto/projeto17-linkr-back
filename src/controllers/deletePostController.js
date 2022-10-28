@@ -5,10 +5,12 @@ async function deletePost(req, res) {
   const { postId } = res.locals;
 
   try {
-    await deletePostRepository.deleteLikesByPostId(postId);
-    await deletePostRepository.deletePostHashtagsByPostId(postId);
+    await deletePostRepository.deleteReposts(postId);
+    await deletePostRepository.deleteComments(postId);
+    await deletePostRepository.deleteLikes(postId);
+    await deletePostRepository.deletePostHashtags(postId);
 
-    const deleteSuccessful = await deletePostRepository.deletePostById(postId);
+    const deleteSuccessful = await deletePostRepository.deletePost(postId);
 
     if (deleteSuccessful.rowCount > 0) {
       return res.status(200).send("Post deleted successfully");
