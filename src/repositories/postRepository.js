@@ -60,7 +60,7 @@ async function insertPostHashtag(postId, hashtagId) {
   );
 }
 
-async function listPosts(userId) {
+async function listPosts(userId, offset) {
   return (
     await connection.query(
       `
@@ -79,9 +79,10 @@ async function listPosts(userId) {
     WHERE followers."idFollowed" IS NOT NULL OR p."userId" = $1
     GROUP BY p.id, u.username, u."profilePicture", followers."idFollowed"
     ORDER BY p.id DESC
-    LIMIT 20;
+    LIMIT 10
+    OFFSET $2;
     `,
-      [userId]
+      [userId, offset]
     )
   ).rows;
 }
