@@ -37,4 +37,17 @@ const deleteLike = async (likeId) => {
   `, [likeId]);
 };
 
-export { verifyLike, verifyPost, insertLike, deleteLike };
+const listLikes = async (postId) => {
+  return (await connection.query(`
+  SELECT
+  l."userId",
+  u.username
+  FROM likes l 
+  JOIN users u 
+  ON l."userId" = u."id" 
+  WHERE l."postId" = $1
+  ORDER BY l.id DESC 
+  `, [postId])).rows;
+};
+
+export { verifyLike, verifyPost, insertLike, deleteLike, listLikes };

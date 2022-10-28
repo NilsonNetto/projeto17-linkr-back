@@ -71,16 +71,10 @@ async function listPosts(userId) {
       u."profilePicture",
       p.description,
       followers."idFollowed" AS following,
-      p.url,
-        CASE WHEN EXISTS (SELECT * FROM likes l2 WHERE l2."userId" = $1 AND l2."postId" = p.id)  
-        THEN TRUE
-        ELSE FALSE 
-      END AS "userLike" ,
-      array_agg(u2.username) AS "postLikes"
+      p.url
     FROM posts p
     JOIN users u ON p."userId" = u.id
     LEFT JOIN likes l ON l."postId" = p.id
-    LEFT JOIN users u2 ON l."userId" = u2.id
     LEFT JOIN followers ON followers."idFollower"=$1 AND followers."idFollowed"=u.id
     WHERE followers."idFollowed" IS NOT NULL OR p."userId" = $1
     GROUP BY p.id, u.username, u."profilePicture", followers."idFollowed"

@@ -16,11 +16,10 @@ const getHashtags = async (req, res) => {
 
 const getPostsWithHashtag = async (req, res) => {
   const { hashtag } = req.params;
-  const { userId } = res.locals;
 
   try {
 
-    const posts = await listPostsWithHashtag(userId, hashtag);
+    const posts = await listPostsWithHashtag(hashtag);
 
     await Promise.all(
       posts.map(async (post) => {
