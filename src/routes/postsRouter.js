@@ -5,7 +5,7 @@ import { validateToken } from "./../middleware/validateTokenMiddleware.js";
 const postsRouter = express.Router();
 
 postsRouter.post("/publish", validateToken, publishPost);
-postsRouter.get("/timeline", validateToken, getPosts);
+postsRouter.get("/timeline/:offset", validateToken, getPosts);
 postsRouter.get("/new", validateToken, getNewPosts);
 
 export default postsRouter;
